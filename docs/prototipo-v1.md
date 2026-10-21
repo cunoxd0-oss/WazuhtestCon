@@ -310,7 +310,7 @@ Puntos importantes del diseño:
 | --- | --- |
 | `lanzar(piso)` | `realizado`, `piso_invalido`, `sin_huevos`, `redundante`, `partida_inactiva` |
 | `declarar(piso)` | `correcta`, `incorrecta`, `sin_evidencia`, `piso_invalido`, `partida_inactiva` |
-| `reiniciar({ confirmado })` | `{ reiniciada: true }` o `{ reiniciada: false, requiereConfirmacion: true }` |
+| `reiniciar({ confirmado })` | `{ reiniciada: true, requiereConfirmacion: false }` o `{ reiniciada: false, requiereConfirmacion: true }` |
 
 ### 6.3 Estados de la partida
 
@@ -398,7 +398,7 @@ Casos especiales:
 
 ### 6.8 Conexión con React
 
-`usePartida` crea una única `Partida` cuando se abre la app. Cada acción (`iniciar`, `lanzar`, `declarar` y `reiniciar`) llama al dominio, guarda la nueva instantánea en el estado de React, lo que vuelve a dibujar la pantalla, y devuelve el resultado para que `PantallaSimulacion` elija el mensaje. Los componentes nunca modifican la partida directamente.
+`usePartida` crea una única `Partida` cuando se abre la app. Cada acción (`iniciar`, `lanzar`, `declarar` y `reiniciar`) llama al dominio y guarda la nueva instantánea en el estado de React, lo que vuelve a dibujar la pantalla. `lanzar`, `declarar` y `reiniciar` además devuelven el resultado del dominio, que `PantallaSimulacion` usa para elegir el mensaje. Los componentes nunca modifican la partida directamente.
 
 ## 7. Validaciones
 
