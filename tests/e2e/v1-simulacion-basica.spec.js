@@ -95,6 +95,7 @@ test.describe('Prototipo V1 · simulación básica', () => {
 
     await declarar(page, 40)
     await expect(mensaje(page)).toContainText('Aún no hay evidencia suficiente')
+    await expect(boton(page, 'Declarar')).toBeFocused()
     await declarar(page, 12)
     await expect(mensaje(page)).toContainText('Declaración incorrecta')
     await expect(estadoPartida(page)).toHaveText('En curso')
@@ -122,7 +123,7 @@ test.describe('Prototipo V1 · simulación básica', () => {
     await expect(boton(page, 'Declarar')).toBeDisabled()
   })
 
-  test('CP-17: reiniciar pide confirmación; cancelar conserva la partida y confirmar la restablece', async ({
+  test('CP-17: reiniciar pide confirmación; cancelar o Escape conservan la partida y confirmar la restablece', async ({
     page,
   }) => {
     await iniciarPartida(page, 40)
@@ -134,6 +135,14 @@ test.describe('Prototipo V1 · simulación básica', () => {
     await expect(confirmacion).toBeVisible()
     await confirmacion.getByRole('button', { name: 'Cancelar' }).click()
     await expect(confirmacion).toHaveCount(0)
+    await expect(boton(page, 'Reiniciar')).toBeFocused()
+
+    await boton(page, 'Reiniciar').click()
+    await expect(confirmacion).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(confirmacion).toHaveCount(0)
+    await expect(mensaje(page)).toContainText('Reinicio cancelado')
+    await expect(boton(page, 'Reiniciar')).toBeFocused()
     await expect(intentos(page)).toHaveText('2')
     await expect(huevos(page)).toHaveText('1')
     await expect(pisosEn(page, 'seguro')).toHaveCount(39)
