@@ -8,6 +8,8 @@ Simulador web educativo del problema de los dos huevos y los 100 pisos, construi
 | V2 · Estrategias | RF-06 a RF-10 y RF-21 | Pendiente |
 | V3 · Optimización | RF-11 a RF-16 | Pendiente |
 
+Detalle de todo lo que incluye V1 (interfaz, lógica, validaciones, mensajes y pruebas): [`docs/prototipo-v1.md`](docs/prototipo-v1.md).
+
 ## Requisitos previos
 
 - Node.js 22.12 o superior (recomendado 24 LTS) y npm.
@@ -36,6 +38,7 @@ src/
 └── main.jsx
 tests/e2e/          # Pruebas Playwright nombradas por caso de prueba (CP-xx)
 .github/workflows/  # CI: lint, pruebas unitarias, build y E2E
+docs/               # Documentación de cada prototipo
 ```
 
 La lógica vive en `src/dominio` y no depende de React: se prueba de forma aislada y se reutilizará en V2 (estrategias automáticas) y V3 (análisis de los 100 escenarios).
