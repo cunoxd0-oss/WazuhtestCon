@@ -35,7 +35,7 @@ Requisito: Node.js 22.12 o superior (recomendado 24 LTS).
 | Comando | Para qué sirve |
 | --- | --- |
 | `npm install` | Instala las dependencias |
-| `npm run dev` | Abre la app en modo desarrollo en `http://localhost:5173` |
+| `npm run dev` | Inicia la app en modo desarrollo en `http://localhost:5173` |
 | `npm run build` | Genera la versión de producción en `dist/` |
 | `npm run preview` | Sirve localmente la versión de `dist/` |
 | `npm run lint` | Revisa el código con Oxlint |
@@ -137,7 +137,7 @@ La distribución sigue el wireframe «Lanzamiento Manual» del documento de dise
 +------------------+----------------------------+---------------------------+
 ```
 
-- En pantallas de menos de 960 px de ancho, las tres columnas se apilan en una sola.
+- En pantallas de 960 px de ancho o menos, las tres columnas se apilan en una sola.
 - El edificio y el historial tienen su propio scroll, así la página no crece con los 100 pisos.
 - El desplegable «¿Cómo jugar?» muestra las mismas instrucciones que la pantalla de inicio.
 
@@ -209,7 +209,7 @@ Quedarse sin huevos sin haber determinado F termina la partida como no resuelta;
 - Cada piso se anuncia como «Piso N, seguro», «Piso N, rotura» o «Piso N, desconocido», y el seleccionado se marca con `aria-pressed`.
 - Los estados se distinguen por color **y** por símbolo (✓ / ✕), para no depender solo del color.
 - Los mensajes de resultado están en una región `role="status"`, que los lectores de pantalla anuncian. El error del diálogo de declaración usa `role="alert"` y marca el campo con `aria-invalid`.
-- Los diálogos son modales nativos: bloquean el resto de la página, se cierran con Escape (equivale a Cancelar) y, al cerrarse, devuelven el foco al botón que los abrió.
+- Los diálogos son modales nativos: bloquean el resto de la página, se cierran con Escape (equivale a Cancelar) y, al cerrarse, devuelven el foco al botón que los abrió. Si ese botón queda desactivado, como **Declarar** tras una declaración correcta, el foco pasa al cuerpo de la página.
 - Pulsar Enter en el campo «Piso seleccionado» equivale a **Lanzar**; en el diálogo de declaración, a **Confirmar**.
 - Botones, pisos, campos y el desplegable muestran un contorno azul cuando reciben el foco con el teclado.
 - El historial es una tabla con encabezados de columna, y el estado, una lista de definiciones.
@@ -301,7 +301,7 @@ Todos los archivos están en `src/dominio/`.
 
 Puntos importantes del diseño:
 
-- Cada acción de `Partida` devuelve un objeto con un **tipo** de resultado y los datos necesarios para explicarlo. Una entrada incorrecta del usuario nunca produce un error de JavaScript.
+- `lanzar()` y `declarar()` devuelven un objeto con un **tipo** de resultado y los datos necesarios para explicarlo; `reiniciar()` indica si se reinició o si falta confirmar. Una entrada incorrecta del usuario nunca produce un error de JavaScript.
 - `intentos` se calcula como el tamaño del historial, así el contador y el historial no pueden desincronizarse.
 - `Lanzamiento` y la `instantanea()` son inmutables, y `Historial.lanzamientos` devuelve una copia.
 - `pisoCriticoRevelado` vale `null` mientras la partida está en curso y F cuando termina.
@@ -407,9 +407,9 @@ Casos especiales:
 | Qué se valida | Regla | Dónde | Qué ve el usuario |
 | --- | --- | --- | --- |
 | Piso a lanzar | Entero entre 1 y 100 | `Edificio.interpretarPiso`, `Partida.lanzar` | “Piso no válido: elige un número entero entre 1 y 100.” No cambia nada |
-| Huevos disponibles | No se lanza con 0 huevos | `Partida.lanzar`; botón **Lanzar** desactivado | “No quedan huevos, así que ya no se permiten lanzamientos…” |
+| Huevos disponibles | No se lanza con 0 huevos | Botón **Lanzar** desactivado; `Partida.lanzar` también lo rechaza | **Lanzar** desactivado. El mensaje del dominio («No quedan huevos…») no llega a verse en la interfaz |
 | Intento redundante | El piso ya es seguro o de rotura | `RegistroInferencias.esRedundante` | Aviso; no cambian huevos, contador ni historial |
-| Partida activa | Solo se lanza o declara con la partida en curso | `Partida.lanzar` y `declarar`; controles desactivados | Los controles se desactivan, así que este mensaje no llega a verse en la interfaz |
+| Partida activa | Solo se lanza o declara con la partida en curso | Controles desactivados; `Partida.lanzar` y `declarar` también lo rechazan | Controles desactivados. El mensaje del dominio («La partida ya terminó…») no llega a verse en la interfaz |
 | Piso declarado | Entero entre 1 y 100 | `Partida.declarar` | “Escribe un piso entero entre 1 y 100.” dentro del diálogo, que sigue abierto |
 | Evidencia suficiente | Debe quedar un único candidato a F | `Partida.declarar` | “Aún no hay evidencia suficiente…” con el rango de candidatos |
 | Declaración coherente | El piso debe estar entre los candidatos | `Partida.declarar` | “Declaración incorrecta: …” con el motivo |
@@ -429,10 +429,11 @@ Casos especiales:
 | `10a`, `abc` | Rechazada: no es un número |
 | Campo vacío | Rechazada |
 
-### 7.3 Validación en una sola capa
+### 7.3 Dónde se valida
 
-- Los formularios usan `noValidate`: el navegador no muestra sus propios globos de error y todas las reglas las aplica el dominio, así el mensaje siempre es el mismo.
-- Los atributos `min`, `max` y `step` de los campos solo ayudan con las flechas y el teclado numérico.
+- Todas las reglas las aplica el dominio. Los formularios usan `noValidate`, así el navegador no muestra sus propios globos de error y el mensaje siempre es el mismo.
+- La interfaz además desactiva **Lanzar** cuando no quedan huevos y los controles cuando la partida termina; el dominio rechaza esas acciones igualmente.
+- Los atributos `min`, `max` y `step` solo guían las flechas del campo (botones y teclas ↑/↓); no impiden escribir otros valores.
 
 ### 7.4 Protección del piso crítico
 
@@ -456,14 +457,14 @@ Estos son mensajes reales generados por el código. Salen de la partida con F = 
 | El huevo se rompe | Intento 2: el huevo se rompió en el piso 60. Los pisos 60 a 100 son de rotura. Te queda 1 huevo. | Rotura |
 | Declaración incorrecta (por encima de una rotura) | Declaración incorrecta: el huevo se rompió en el piso 60, así que F no puede ser mayor que 60. Puedes seguir buscando. | Error |
 | Se rompe el último huevo y F queda determinado | Intento 4: el huevo se rompió en el piso 40. Los pisos 40 a 100 son de rotura. No quedan huevos. La evidencia ya determina un único piso crítico: pulsa «Declarar». | Rotura |
-| Lanzar sin huevos | No quedan huevos, así que ya no se permiten lanzamientos. La evidencia determina F: pulsa «Declarar». | Aviso |
+| Lanzar sin huevos (no llega a verse en la interfaz: **Lanzar** está desactivado) | No quedan huevos, así que ya no se permiten lanzamientos. La evidencia determina F: pulsa «Declarar». | Aviso |
 | Declaración correcta | ¡Correcto! El piso crítico es 40: el huevo sobrevivió en el piso 39 y se rompió en el piso 40. Lo demostraste en 4 intentos. | Éxito |
 | Partida no resuelta | Intento 2: el huevo se rompió en el piso 45. Los pisos 45 a 100 son de rotura. No quedan huevos. La evidencia no basta para determinar F (podía estar entre los pisos 1 y 45). Partida no resuelta: el piso crítico era 40. | Error |
 | Piso a lanzar no válido | Piso no válido: elige un número entero entre 1 y 100. | Error |
 | Piso declarado no válido (dentro del diálogo) | Escribe un piso entero entre 1 y 100. | Error |
 | Reinicio | Partida reiniciada con un nuevo piso crítico oculto. Selecciona un piso y pulsa «Lanzar». | Neutro |
 | Reinicio cancelado | Reinicio cancelado: la partida continúa sin cambios. | Neutro |
-| Acción con la partida terminada (no llega a verse en la interfaz) | La partida ya terminó. Pulsa «Reiniciar» para jugar otra vez. | Aviso |
+| Acción con la partida terminada (no llega a verse en la interfaz: los controles están desactivados) | La partida ya terminó. Pulsa «Reiniciar» para jugar otra vez. | Aviso |
 
 Otras variantes:
 
