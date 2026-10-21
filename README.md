@@ -72,3 +72,4 @@ La lógica vive en `src/dominio` y no depende de React: se prueba de forma aisla
 - **Fin automático sin huevos.** Si se rompe el último huevo sin certeza, la partida termina como no resuelta (RN-11) y se muestra F.
 - **Sin huevos pero con certeza**, se bloquean los lanzamientos y se puede declarar.
 - **Reiniciar** pide confirmación mientras la partida está en curso (RN-12); una partida terminada se reinicia directamente.
+- **Piso 100 tras sobrevivir en el 99.** La evidencia ya determina F = 100 y se puede declarar, pero el piso 100 sigue gris y lanzar desde él cuenta como intento, porque RN-08 solo marca lo que se deduce directamente de cada lanzamiento. Si RN-09 se interpreta en sentido amplio, ese lanzamiento debería bloquearse como redundante.
