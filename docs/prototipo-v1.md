@@ -187,7 +187,7 @@ Cada mensaje tiene un tono que define su color:
 | Neutro | Gris | Inicio, reinicio y reinicio cancelado |
 | Seguro | Verde claro | El huevo sobrevivió |
 | Rotura | Rojo claro | El huevo se rompió |
-| Aviso | Amarillo | Intento redundante, falta de evidencia, sin huevos o partida terminada |
+| Aviso | Amarillo | Intento redundante o falta de evidencia |
 | Error | Rojo | Piso no válido, declaración incorrecta o partida no resuelta |
 | Éxito | Verde, en negrita | Declaración correcta |
 
@@ -303,7 +303,7 @@ Puntos importantes del diseño:
 
 - `lanzar()` y `declarar()` devuelven un objeto con un **tipo** de resultado y los datos necesarios para explicarlo; `reiniciar()` indica si se reinició o si falta confirmar. Una entrada incorrecta del usuario nunca produce un error de JavaScript.
 - `intentos` se calcula como el tamaño del historial, así el contador y el historial no pueden desincronizarse.
-- `Lanzamiento` y la `instantanea()` son inmutables, y `Historial.lanzamientos` devuelve una copia.
+- `Lanzamiento` es inmutable. `instantanea()` devuelve un objeto congelado con copias de los datos y `Historial.lanzamientos` también devuelve una copia, así que la interfaz no puede alterar la partida a través de ellos.
 - `pisoCriticoRevelado` vale `null` mientras la partida está en curso y F cuando termina.
 
 | Acción | Tipos de resultado posibles |
@@ -363,7 +363,7 @@ Los pasos 1 a 4 no modifican nada: ni huevos, ni contador, ni historial.
 5. Si es el único candidato, es F → `correcta`, y la partida queda **resuelta**.
 6. Si el piso contradice la evidencia → `incorrecta`: se explica por qué y la partida continúa.
 
-Cada respuesta incluye la evidencia (piso seguro más alto, rotura más baja y rango de candidatos), los intentos y los huevos, que `mensajes.js` usa para explicar el resultado.
+Las respuestas de los pasos 4 a 6 incluyen la evidencia (piso seguro más alto, rotura más baja y rango de candidatos), los intentos y los huevos, que `mensajes.js` usa para explicar el resultado.
 
 ### 6.6 Qué pasa al reiniciar
 
@@ -556,7 +556,7 @@ Comportamientos que la ERS no fija del todo y que conviene revisar en la evaluac
 
 Previsto para los siguientes prototipos:
 
-- **V2 · Estrategias:** configurar F (RF-06), elegir y ejecutar las estrategias secuencial y de saltos fijos de 10 pisos (RF-07, RF-08, RF-21), historial de las estrategias (RF-09) y comparación de resultados (RF-10).
+- **V2 · Estrategias:** configurar F (RF-06), elegir y ejecutar las estrategias secuencial y de saltos fijos de 10 pisos (RF-07, RF-08, RF-21), historial de lanzamientos (RF-09) y comparación de resultados (RF-10).
 - **V3 · Optimización:** estrategia óptima de saltos decrecientes (RF-11, RF-12), análisis del peor caso en los 100 escenarios (RF-13), comparación de estrategias (RF-14), explicación de los 14 lanzamientos (RF-15) y resumen final (RF-16).
 
 Pendiente de verificar:
@@ -565,7 +565,7 @@ Pendiente de verificar:
 - **RNF-03 Compatibilidad:** las pruebas automáticas usan Chromium; falta probar el flujo completo en Chrome y Edge de escritorio.
 - **Evaluación del prototipo V1 con el cliente** (ERS, sección 9.1): pendiente.
 
-La tabla de historial ya aparece en V1 porque la incluyen el wireframe y CU-09; RF-09, el historial de las estrategias automáticas, se formaliza en V2.
+La tabla de historial ya aparece en V1 porque la incluyen el wireframe y CU-09. Aun así, en la ERS RF-09 (historial de lanzamientos) pertenece a V2: está ligado a CU-05 (ejecución de estrategias) y su prueba, CP-09, se hará en V2.
 
 Por decisión de alcance no hay cuentas, perfiles, multijugador, almacenamiento ni servicios en línea; por eso la partida se pierde al recargar la página.
 
